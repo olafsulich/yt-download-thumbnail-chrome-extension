@@ -2,7 +2,6 @@
 (() => {
   const BTN = "ytthumb-btn";
   const WATCH_BTN = "ytthumb-watch-btn";
-  const HOST = "ytthumb-host";
 
   const ICON = `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
     <path fill="currentColor" d="M12 15.6 7.4 11l1.4-1.4 2.2 2.2V4h2v7.8l2.2-2.2 1.4 1.4L12 15.6ZM5 20v-2h14v2H5Z"/></svg>`;
@@ -119,10 +118,13 @@
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation();
-      const thumb = btn.parentElement;
-      const id = thumb && videoIdFor(thumb);
+      const host = btn.parentElement;
+      if (!host) return;
+      const { id, title } = btn.dataset.preview
+        ? previewVideo(host)
+        : { id: videoIdFor(host), title: titleFor(host) };
       if (!id) return setState(btn, "error");
-      triggerDownload(btn, id, titleFor(thumb));
+      triggerDownload(btn, id, title);
     }, true);
     return btn;
   }
@@ -130,10 +132,30 @@
   function decorate(thumb) {
     // Skip tiny thumbnails (e.g. avatars, mini-guide) and those nested in another decorated one.
     if (thumb.querySelector(`:scope > .${BTN}`)) return;
-    if (thumb.parentElement?.closest(`.${HOST}`)) return;
-    if (thumb.closest("ytd-miniplayer, #ytthumb-skip")) return;
-    thumb.classList.add(HOST);
+    if (thumb.parentElement?.closest(`:has(> .${BTN})`)) return;
+    if (thumb.closest("ytd-miniplayer, #video-preview")) return;
     thumb.appendChild(makeOverlayButton());
+  }
+
+  // ---- Hover inline preview: YouTube lays a player over the thumbnail, covering our button ----
+  function ensurePreviewButton() {
+    const preview = document.querySelector("#video-preview ytd-video-preview");
+    if (!preview || preview.querySelector(`:scope > .${BTN}`)) return;
+    const btn = makeOverlayButton();
+    btn.dataset.preview = "1";
+    preview.appendChild(btn);
+  }
+
+  function previewVideo(preview) {
+    const a = preview.querySelector("a[href*='watch?v='], a[href*='/shorts/']");
+    const id = idFromUrl(a?.getAttribute("href"));
+    if (!id) return { id: null, title: "" };
+    // Find the matching card on the page to get its title.
+    const link = document.querySelector(
+      `${CARD_SELECTORS.split(",").map((s) => `${s} a[href*="${id}"]`).join(",")}`
+    );
+    const thumb = link && (link.closest(THUMB_SELECTORS) || link.closest(CARD_SELECTORS)?.querySelector(THUMB_SELECTORS));
+    return { id, title: thumb ? titleFor(thumb) : "" };
   }
 
   // ---- Watch page: pill button next to Like / Share ----
@@ -203,6 +225,7 @@
   function scan() {
     scheduled = false;
     document.querySelectorAll(THUMB_SELECTORS).forEach(decorate);
+    ensurePreviewButton();
     ensureWatchButton();
     ensureShortsButton();
   }

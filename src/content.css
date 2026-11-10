@@ -1,6 +1,7 @@
 /* ---- Overlay button on every thumbnail ---- */
-.ytthumb-host {
-  position: relative !important;
+/* YouTube rewrites className on its components, so hosts are matched structurally. */
+:has(> .ytthumb-btn):not(ytd-video-preview) {
+  position: relative;
 }
 
 .ytthumb-btn {
@@ -19,6 +20,7 @@
   color: #fff;
   cursor: pointer;
   opacity: 0;
+  pointer-events: none;
   transform: scale(0.92);
   transition: opacity 0.15s ease-out, transform 0.15s ease-out, background-color 0.15s ease-out;
   -webkit-backdrop-filter: blur(6px);
@@ -32,12 +34,13 @@
   pointer-events: none;
 }
 
-.ytthumb-host:hover > .ytthumb-btn,
+:hover > .ytthumb-btn,
 .ytthumb-btn:focus-visible,
 .ytthumb-btn[data-state="busy"],
 .ytthumb-btn[data-state="done"],
 .ytthumb-btn[data-state="error"] {
   opacity: 1;
+  pointer-events: auto;
   transform: scale(1);
 }
 
