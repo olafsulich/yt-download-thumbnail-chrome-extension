@@ -3,8 +3,9 @@
   const BTN = "ytthumb-btn";
   const WATCH_BTN = "ytthumb-watch-btn";
 
+  // Picture icon (not a download arrow) so it can't be mistaken for "download video".
   const ICON = `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-    <path fill="currentColor" d="M12 15.6 7.4 11l1.4-1.4 2.2 2.2V4h2v7.8l2.2-2.2 1.4 1.4L12 15.6ZM5 20v-2h14v2H5Z"/></svg>`;
+    <path fill="currentColor" d="M5 21a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5Zm0-2h14V5H5v14Zm1-2 3-4 2.25 3 3-4L18 17H6Zm2.5-7A1.5 1.5 0 1 1 8.5 7a1.5 1.5 0 0 1 0 3Z"/></svg>`;
   const CHECK = `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
     <path fill="currentColor" d="m9.6 17.2-5.3-5.3 1.4-1.4 3.9 3.9 8.7-8.7 1.4 1.4-10.1 10.1Z"/></svg>`;
   const ERROR = `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
