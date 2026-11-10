@@ -14,9 +14,9 @@ It blends into YouTube's own interface: it uses YouTube's icon set, copies the s
 
 <img src="docs/search.png" width="720" alt="Button on a search result">
 
-**Watch page**: next to Share and Save.
+**Watch page**: at the end of the action row, before the ⋯ menu. Follows light and dark theme.
 
-<img src="docs/watch.png" width="720" alt="Button in the watch-page action row">
+<img src="docs/watch.png" width="480" alt="Button in the watch-page action row">
 
 **Shorts**: at the top of the action bar.
 

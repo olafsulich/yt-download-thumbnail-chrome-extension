@@ -2,7 +2,8 @@
  * Styles mirror YouTube's own controls (measured from the live site):
  *  - thumbnail hover buttons ("Watch later", "Add to queue"): 32px circle, rgba(0,0,0,.3) + 8px blur,
  *    rgba(40,40,40,.6) on hover, 24px white icon with a soft drop shadow, 4px from the edge
- *  - watch-page icon buttons ("Share", "Save"): 40px circle, tonal chip background, 8px apart
+ *  - watch-page / Shorts icon buttons ("Share", "Save"): 40px circle, 8px apart;
+ *    light: rgba(0,0,0,.05) -> .1 on hover, #0f0f0f icon; dark: rgba(255,255,255,.1) -> .2, #f1f1f1
  */
 
 /* ---- Overlay button on every thumbnail ---- */
@@ -98,9 +99,11 @@ ytd-playlist-panel-video-renderer .ytthumb-btn svg {
   width: 40px;
   height: 40px;
   margin-left: 8px;
+  /* #flexible-item-buttons is a block of inline-blocks; keep an icon-only button from shifting the baseline */
+  vertical-align: top;
   border-radius: 50%;
-  background: var(--yt-spec-badge-chip-background, rgba(0, 0, 0, 0.05));
-  color: var(--yt-spec-text-primary, #0f0f0f);
+  background: rgba(0, 0, 0, 0.05);
+  color: #0f0f0f;
   cursor: pointer;
   box-sizing: border-box;
   transition: background-color 0.1s ease-out;
@@ -108,7 +111,16 @@ ytd-playlist-panel-video-renderer .ytthumb-btn svg {
 }
 
 .ytthumb-watch-btn:hover {
-  background: var(--yt-spec-button-chip-background-hover, rgba(0, 0, 0, 0.1));
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* Dark theme: YouTube sets html[dark]; its --yt-spec-* variables are no longer reliable. */
+html[dark] .ytthumb-watch-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f1f1f1;
+}
+html[dark] .ytthumb-watch-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* ---- Shorts action bar: same size as Like / Dislike / Share ---- */

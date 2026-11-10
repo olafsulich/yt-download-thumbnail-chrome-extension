@@ -180,12 +180,9 @@
     );
   }
 
-  function ensureWatchButton() {
-    const id = currentWatchId();
-    if (!id) return;
-    const bar = document.querySelector("ytd-watch-metadata #top-level-buttons-computed");
-    if (!bar) return;
-    if (bar.querySelector(`.${WATCH_BTN}`)) return;
+  let watchBtn = null;
+
+  function makeWatchButton() {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = WATCH_BTN;
@@ -199,7 +196,25 @@
       const vid = currentWatchId();
       if (vid) triggerDownload(btn, vid, watchTitle());
     });
-    bar.appendChild(btn);
+    return btn;
+  }
+
+  // Keep the button at the end of the action row (after Share / Save / Thanks, before "⋯").
+  // Logged-in layouts put those in #flexible-item-buttons, logged-out ones in #top-level-buttons-computed.
+  function ensureWatchButton() {
+    if (!currentWatchId()) return;
+    const menu = document.querySelector("ytd-watch-metadata #actions ytd-menu-renderer");
+    if (!menu) return;
+    const flexible = menu.querySelector(":scope > #flexible-item-buttons");
+    const topLevel = menu.querySelector(":scope > #top-level-buttons-computed");
+    const hasFlexibleItems =
+      flexible && [...flexible.children].some((c) => c !== watchBtn && c.getBoundingClientRect().width > 0);
+    const target = hasFlexibleItems ? flexible : topLevel;
+    if (!target) return;
+    watchBtn ||= makeWatchButton();
+    // Drop stale copies (e.g. left behind by a re-render).
+    menu.querySelectorAll(`.${WATCH_BTN}`).forEach((b) => b !== watchBtn && b.remove());
+    if (target.lastElementChild !== watchBtn) target.appendChild(watchBtn);
   }
 
   // ---- Shorts player: button in the vertical action bar of every reel ----
