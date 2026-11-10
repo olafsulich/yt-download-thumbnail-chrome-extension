@@ -14,12 +14,16 @@ One click to save the best-quality thumbnail of any YouTube video.
 
 | Place | Button |
 | --- | --- |
-| Home, Subscriptions, Search, channel pages, playlists, watch-page sidebar | Small picture icon in the top-left corner of a thumbnail, shown on hover (also over YouTube's hover preview) |
-| Watch page | **Thumbnail** pill next to Like / Share |
-| Shorts player | **Thumbnail** button at the top of the right-hand action bar |
-| Shorts shelves / grids | Same hover icon as other thumbnails |
+| Home, Subscriptions, Search, channel pages, playlists, watch-page sidebar, Shorts shelves | Round icon in the top-left corner of a thumbnail on hover, styled like YouTube's own "Watch later" / "Add to queue" buttons (also shown over YouTube's hover preview) |
+| Watch page | Round icon button next to Share / Save |
+| Shorts player | Round icon button at the top of the right-hand action bar |
 
-The icon is a picture, not a download arrow, so it can't be mistaken for "download video".
+There are no text labels; hovering shows a "Download thumbnail" tooltip.
+
+The icons come from YouTube's own current icon set (the one the site loads from
+`fonts.gstatic.com/s/i/youtube_outline_experimental/<name>/v<N>/24px.svg`): `image` for the
+button, `check` after a successful download and `alert_triangle` on error. It's a picture rather
+than a download arrow, so it can't be mistaken for "download video".
 
 ## What gets downloaded
 

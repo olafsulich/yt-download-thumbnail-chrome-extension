@@ -1,3 +1,10 @@
+/*
+ * Styles mirror YouTube's own controls (measured from the live site):
+ *  - thumbnail hover buttons ("Watch later", "Add to queue"): 32px circle, rgba(0,0,0,.3) + 8px blur,
+ *    rgba(40,40,40,.6) on hover, 24px white icon with a soft drop shadow, 4px from the edge
+ *  - watch-page icon buttons ("Share", "Save"): 40px circle, tonal chip background, 8px apart
+ */
+
 /* ---- Overlay button on every thumbnail ---- */
 /* YouTube rewrites className on its components, so hosts are matched structurally. */
 :has(> .ytthumb-btn):not(ytd-video-preview) {
@@ -7,31 +14,36 @@
 .ytthumb-btn {
   all: unset;
   position: absolute;
-  top: 6px;
-  left: 6px;
+  top: 4px;
+  left: 4px;
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  background: rgba(15, 15, 15, 0.78);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.3);
   color: #fff;
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
-  transform: scale(0.92);
-  transition: opacity 0.15s ease-out, transform 0.15s ease-out, background-color 0.15s ease-out;
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  transition: opacity 0.15s ease-out, background-color 0.1s ease-out;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   box-sizing: border-box;
 }
 
 .ytthumb-btn .ytthumb-icon,
 .ytthumb-watch-btn .ytthumb-icon {
   display: flex;
+  width: 24px;
+  height: 24px;
   pointer-events: none;
+}
+
+.ytthumb-btn .ytthumb-icon {
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.3));
 }
 
 :hover > .ytthumb-btn,
@@ -41,18 +53,14 @@
 .ytthumb-btn[data-state="error"] {
   opacity: 1;
   pointer-events: auto;
-  transform: scale(1);
 }
 
 .ytthumb-btn:hover {
-  background: rgba(0, 0, 0, 0.92);
+  background: rgba(40, 40, 40, 0.6);
 }
 
-.ytthumb-btn:active {
-  transform: scale(0.94);
-}
-
-.ytthumb-btn:focus-visible {
+.ytthumb-btn:focus-visible,
+.ytthumb-watch-btn:focus-visible {
   outline: 2px solid #3ea6ff;
   outline-offset: 2px;
 }
@@ -62,52 +70,40 @@
   animation: ytthumb-pulse 0.8s ease-in-out infinite alternate;
 }
 
-.ytthumb-btn[data-state="done"] {
-  background: rgba(6, 125, 66, 0.92);
-}
-
-.ytthumb-btn[data-state="error"] {
-  background: rgba(204, 0, 0, 0.92);
-}
-
 @keyframes ytthumb-pulse {
   from { opacity: 1; }
   to { opacity: 0.35; }
 }
 
-/* Small thumbnails (playlist panel, compact rows) get a smaller button */
+/* Small thumbnails (playlist panel) get YouTube's smaller 24px size */
 ytd-playlist-panel-video-renderer .ytthumb-btn {
-  top: 3px;
-  left: 3px;
   width: 24px;
   height: 24px;
-  border-radius: 6px;
+}
+ytd-playlist-panel-video-renderer .ytthumb-btn .ytthumb-icon {
+  width: 16px;
+  height: 16px;
 }
 ytd-playlist-panel-video-renderer .ytthumb-btn svg {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
 }
 
-/* ---- Watch page pill (matches YouTube's action buttons) ---- */
+/* ---- Watch page: icon-only circle next to Share / Save ---- */
 .ytthumb-watch-btn {
   all: unset;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 16px 0 12px;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   margin-left: 8px;
-  border-radius: 18px;
+  border-radius: 50%;
   background: var(--yt-spec-badge-chip-background, rgba(0, 0, 0, 0.05));
   color: var(--yt-spec-text-primary, #0f0f0f);
-  font-family: "Roboto", "Arial", sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 36px;
-  white-space: nowrap;
   cursor: pointer;
   box-sizing: border-box;
-  transition: background-color 0.15s ease-out;
+  transition: background-color 0.1s ease-out;
   flex: none;
 }
 
@@ -115,24 +111,7 @@ ytd-playlist-panel-video-renderer .ytthumb-btn svg {
   background: var(--yt-spec-button-chip-background-hover, rgba(0, 0, 0, 0.1));
 }
 
-.ytthumb-watch-btn:focus-visible {
-  outline: 2px solid #3ea6ff;
-  outline-offset: 2px;
-}
-
-.ytthumb-watch-btn[data-state="done"] {
-  color: #067d42;
-}
-
-html[dark] .ytthumb-watch-btn[data-state="done"] {
-  color: #2ba640;
-}
-
-.ytthumb-watch-btn[data-state="error"] {
-  color: #cc0000;
-}
-
-/* ---- Shorts action bar: round icon button + label, like Like/Share ---- */
+/* ---- Shorts action bar: same size as Like / Dislike / Share ---- */
 .ytthumb-shorts-action {
   display: flex;
   flex-direction: column;
@@ -142,21 +121,7 @@ html[dark] .ytthumb-watch-btn[data-state="done"] {
 .ytthumb-shorts-btn {
   width: 48px;
   height: 48px;
-  padding: 0;
   margin: 0;
-  justify-content: center;
-  border-radius: 50%;
-}
-.ytthumb-shorts-btn svg {
-  width: 24px;
-  height: 24px;
-}
-.ytthumb-shorts-label {
-  margin-top: 4px;
-  font-family: "Roboto", "Arial", sans-serif;
-  font-size: 12px;
-  line-height: 18px;
-  color: var(--yt-spec-text-primary, #0f0f0f);
 }
 
 @media (prefers-reduced-motion: reduce) {

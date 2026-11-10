@@ -3,13 +3,14 @@
   const BTN = "ytthumb-btn";
   const WATCH_BTN = "ytthumb-watch-btn";
 
-  // Picture icon (not a download arrow) so it can't be mistaken for "download video".
-  const ICON = `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-    <path fill="currentColor" d="M5 21a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5Zm0-2h14V5H5v14Zm1-2 3-4 2.25 3 3-4L18 17H6Zm2.5-7A1.5 1.5 0 1 1 8.5 7a1.5 1.5 0 0 1 0 3Z"/></svg>`;
-  const CHECK = `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-    <path fill="currentColor" d="m9.6 17.2-5.3-5.3 1.4-1.4 3.9 3.9 8.7-8.7 1.4 1.4-10.1 10.1Z"/></svg>`;
-  const ERROR = `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-    <path fill="currentColor" d="M11 15h2v2h-2v-2Zm0-8h2v6h-2V7Zm1-5a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z"/></svg>`;
+  // Icons from YouTube's own current icon set (fonts.gstatic.com/s/i/youtube_outline_experimental/*):
+  // "image" (v8), "check" (v13), "alert_triangle" (v10). A picture, not a download arrow, so it
+  // can't be mistaken for "download video".
+  const svg = (d) =>
+    `<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true" focusable="false"><path d="${d}"/></svg>`;
+  const ICON = svg("M20 2H4a2 2 0 00-2 2v16a2 2 0 002 2h16a2 2 0 002-2V4a2 2 0 00-2-2ZM4 18.033V4h16v9.233l-2.456-1.473a3 3 0 00-2.906-.1l-.182.1L4 18.033ZM9 6a3 3 0 100 6 3 3 0 000-6Zm0 2a1 1 0 110 2 1 1 0 010-2Zm7.515 5.475L20 15.565V20H4.61l10.875-6.525.122-.063a1 1 0 01.908.063Z");
+  const CHECK = svg("M19.793 5.793 8.5 17.086l-4.293-4.293a1 1 0 10-1.414 1.414L8.5 19.914 21.207 7.207a1 1 0 10-1.414-1.414Z");
+  const ERROR = svg("M10.68 1.844 1.017 19.79a1.5 1.5 0 001.32 2.211h19.326a1.5 1.5 0 001.32-2.21L13.32 1.843c-.566-1.052-2.074-1.052-2.64 0ZM3.174 20 12 3.61 20.826 20H3.174ZM12 8a1 1 0 00-1 1v4.5a1 1 0 002 0V9a1 1 0 00-1-1Zm0 7.75a1.25 1.25 0 100 2.5 1.25 1.25 0 000-2.5Z");
 
   // Thumbnail containers across old (ytd-thumbnail) and new (view-model) layouts.
   const THUMB_SELECTORS = [
@@ -190,7 +191,7 @@
     btn.className = WATCH_BTN;
     btn.title = "Download thumbnail";
     btn.setAttribute("aria-label", "Download thumbnail");
-    btn.innerHTML = `<span class="ytthumb-icon">${ICON}</span><span class="ytthumb-label">Thumbnail</span>`;
+    btn.innerHTML = `<span class="ytthumb-icon">${ICON}</span>`;
     btn.dataset.state = "idle";
     btn.addEventListener("click", (e) => {
       e.preventDefault();
@@ -230,10 +231,7 @@
         const id = location.pathname.match(/^\/shorts\/([\w-]{11})/)?.[1];
         if (id) triggerDownload(btn, id, shortsTitle(), true);
       });
-      const label = document.createElement("span");
-      label.className = "ytthumb-shorts-label";
-      label.textContent = "Thumbnail";
-      wrap.append(btn, label);
+      wrap.append(btn);
       bar.prepend(wrap);
     });
   }
