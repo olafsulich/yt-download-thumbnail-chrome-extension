@@ -1,64 +1,44 @@
-# YouTube Thumbnail Downloader (Chrome extension)
+# YouTube Thumbnail Downloader
 
-One click to save the best-quality thumbnail of any YouTube video.
+A small Chrome extension that adds one clean button for saving any YouTube thumbnail in the best available quality.
 
-| Grid (Home, Subscriptions, channels) | Search |
-| --- | --- |
-| ![Grid](docs/grid.png) | ![Search](docs/search.png) |
+It blends into YouTube's own interface: it uses YouTube's icon set, copies the style of its buttons and adds no text labels.
 
-| Watch page | Shorts |
-| --- | --- |
-| ![Watch page](docs/watch.png) | ![Shorts](docs/shorts.png) |
+## Screenshots
 
-## Where the button appears
+**Home, Subscriptions and channel pages**: hover a thumbnail and the button appears next to Watch Later and Add to Queue.
 
-| Place | Button |
-| --- | --- |
-| Home, Subscriptions, Search, channel pages, playlists, watch-page sidebar, Shorts shelves | Round icon in the top-left corner of a thumbnail on hover, styled like YouTube's own "Watch later" / "Add to queue" buttons (also shown over YouTube's hover preview) |
-| Watch page | Round icon button next to Share / Save |
-| Shorts player | Round icon button at the top of the right-hand action bar |
+<img src="docs/grid.png" width="420" alt="Button on a thumbnail in the video grid">
 
-There are no text labels; hovering shows a "Download thumbnail" tooltip.
+**Search**
 
-The icons come from YouTube's own current icon set (the one the site loads from
-`fonts.gstatic.com/s/i/youtube_outline_experimental/<name>/v<N>/24px.svg`): `image` for the
-button, `check` after a successful download and `alert_triangle` on error. It's a picture rather
-than a download arrow, so it can't be mistaken for "download video".
+<img src="docs/search.png" width="720" alt="Button on a search result">
 
-## What gets downloaded
+**Watch page**: next to Share and Save.
 
-- Regular videos: the largest available image, tried in this order: `maxresdefault` (1280×720) → `sddefault` → `hqdefault` → `mqdefault`.
-- Shorts: `oardefault`, the original vertical image (e.g. 1080×1920), falling back to the list above.
-- File name: `<video title> [<video id>].jpg`, saved to your default Downloads folder.
+<img src="docs/watch.png" width="720" alt="Button in the watch-page action row">
 
-## Install (unpacked)
+**Shorts**: at the top of the action bar.
 
-1. Open `chrome://extensions`.
-2. Turn on **Developer mode**.
-3. Click **Load unpacked** and select this folder.
+<img src="docs/shorts.png" width="320" alt="Button in the Shorts action bar">
 
-## Project layout
+## What you get
 
-```
-manifest.json        MV3 manifest (permissions: downloads; host: i.ytimg.com)
-src/content.js       Injects buttons; MutationObserver handles YouTube's SPA navigation
-src/content.css      Button styles (uses YouTube's own CSS variables for light/dark)
-src/background.js    Picks the best thumbnail size and calls chrome.downloads
-icons/               Extension icons (generated from icon.svg)
-scripts/             agent-browser helpers used for testing
-```
+- **Videos:** the largest thumbnail available (1280×720 when there is one), falling back to smaller sizes automatically.
+- **Shorts:** the original vertical image (1080×1920).
+- **File name:** `Video title [videoId].jpg`, saved to your Downloads folder.
 
-## Testing with agent-browser
+## Install
+
+1. Download or clone this repo.
+2. Open `chrome://extensions` and turn on **Developer mode**.
+3. Click **Load unpacked** and select the repo folder.
+
+## Development
+
+No build step. The files are plain JS and CSS in `src/`. They were tested with [agent-browser](https://github.com/vercel-labs/agent-browser) using the scripts in `scripts/`:
 
 ```bash
 scripts/launch-test-browser.sh "https://www.youtube.com/results?search_query=lofi"
-scripts/hover-click.sh "ytd-video-renderer ytd-thumbnail" 1 test-output/shot.png
+scripts/hover-click.sh "ytd-video-renderer ytd-thumbnail" 1 shot.png
 ```
-
-`launch-test-browser.sh` starts a fresh session with the extension loaded and rejects the EU cookie dialog. `hover-click.sh` hovers a thumbnail like a user, finds the button that's actually on top (the hover preview included), clicks it and checks the page didn't navigate away.
-
-## Implementation notes
-
-- YouTube overwrites `className` on its components, so the extension never marks hosts with a class. CSS matches them by structure (`:has(> .ytthumb-btn)`, `:hover > .ytthumb-btn`).
-- Hovering a thumbnail puts YouTube's inline preview player (`ytd-video-preview`) over it, so that overlay gets its own button. The video ID is read at click time.
-- Clicks are stopped from bubbling, so pressing the button never opens the video.
