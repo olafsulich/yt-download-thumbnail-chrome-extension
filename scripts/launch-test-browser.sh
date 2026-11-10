@@ -9,5 +9,6 @@ agent-browser close >/dev/null 2>&1 || true
 agent-browser --extension "$ROOT" open "$URL"
 agent-browser wait 2500
 # Dismiss the EU consent dialog if shown (reject non-essential cookies).
-agent-browser find role button click --name "Reject the use of cookies and other data for the purposes described" >/dev/null 2>&1 || true
+agent-browser find role button click --name "Reject the use of cookies and other data for the purposes described" >/dev/null 2>&1 \
+  || agent-browser find role button click --name "Reject all" --exact >/dev/null 2>&1 || true
 agent-browser wait 2000

@@ -51,15 +51,21 @@
     return null;
   }
 
-  function videoIdFor(thumb) {
+  function isShortsUrl(href) {
+    return /(^|\/\/[^/]+)\/shorts\//.test(href || "");
+  }
+
+  function videoFor(thumb) {
     const a =
       thumb.closest("a[href]") ||
       thumb.querySelector("a[href]") ||
       thumb.closest(CARD_SELECTORS)?.querySelector("a[href*='watch?v='], a[href*='/shorts/']");
-    const fromLink = idFromUrl(a?.getAttribute("href"));
-    if (fromLink) return fromLink;
+    const href = a?.getAttribute("href");
+    const isShort = isShortsUrl(href) || !!thumb.closest("ytm-shorts-lockup-view-model, ytm-shorts-lockup-view-model-v2, ytd-reel-item-renderer");
+    const fromLink = idFromUrl(href);
+    if (fromLink) return { id: fromLink, isShort };
     const img = thumb.querySelector("img[src*='ytimg.com/vi']");
-    return idFromUrl(img?.src);
+    return { id: idFromUrl(img?.src), isShort };
   }
 
   function titleFor(thumb) {
@@ -82,11 +88,11 @@
       state === "done" ? CHECK : state === "error" ? ERROR : ICON;
   }
 
-  async function triggerDownload(btn, videoId, title) {
+  async function triggerDownload(btn, videoId, title, isShort = false) {
     if (btn.dataset.state === "busy") return;
     setState(btn, "busy");
     try {
-      const res = await chrome.runtime.sendMessage({ type: "ytThumb:download", videoId, title });
+      const res = await chrome.runtime.sendMessage({ type: "ytThumb:download", videoId, title, isShort });
       if (!res?.ok) throw new Error(res?.error || "Download failed");
       btn.dataset.quality = res.quality;
       setState(btn, "done");
@@ -120,11 +126,11 @@
       e.stopImmediatePropagation();
       const host = btn.parentElement;
       if (!host) return;
-      const { id, title } = btn.dataset.preview
+      const { id, title, isShort } = btn.dataset.preview
         ? previewVideo(host)
-        : { id: videoIdFor(host), title: titleFor(host) };
+        : { ...videoFor(host), title: titleFor(host) };
       if (!id) return setState(btn, "error");
-      triggerDownload(btn, id, title);
+      triggerDownload(btn, id, title, isShort);
     }, true);
     return btn;
   }
@@ -148,14 +154,15 @@
 
   function previewVideo(preview) {
     const a = preview.querySelector("a[href*='watch?v='], a[href*='/shorts/']");
-    const id = idFromUrl(a?.getAttribute("href"));
+    const href = a?.getAttribute("href");
+    const id = idFromUrl(href);
     if (!id) return { id: null, title: "" };
     // Find the matching card on the page to get its title.
     const link = document.querySelector(
       `${CARD_SELECTORS.split(",").map((s) => `${s} a[href*="${id}"]`).join(",")}`
     );
     const thumb = link && (link.closest(THUMB_SELECTORS) || link.closest(CARD_SELECTORS)?.querySelector(THUMB_SELECTORS));
-    return { id, title: thumb ? titleFor(thumb) : "" };
+    return { id, title: thumb ? titleFor(thumb) : "", isShort: isShortsUrl(href) };
   }
 
   // ---- Watch page: pill button next to Like / Share ----
@@ -193,31 +200,41 @@
     bar.appendChild(btn);
   }
 
-  // ---- Shorts player: button in the vertical action bar ----
-  function ensureShortsButton() {
-    const m = location.pathname.match(/^\/shorts\/([\w-]{11})/);
-    if (!m) return;
-    const active =
-      document.querySelector("ytd-reel-video-renderer[is-active]") ||
-      document.querySelector("ytd-shorts");
-    if (!active) return;
-    const bar = active.querySelector("#actions, reel-action-bar-view-model, ytd-reel-player-overlay-renderer #actions");
-    if (!bar || bar.querySelector(".ytthumb-shorts-btn")) return;
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = `${WATCH_BTN} ytthumb-shorts-btn`;
-    btn.title = "Download thumbnail";
-    btn.setAttribute("aria-label", "Download thumbnail");
-    btn.innerHTML = `<span class="ytthumb-icon">${ICON}</span>`;
-    btn.dataset.state = "idle";
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const id = location.pathname.match(/^\/shorts\/([\w-]{11})/)?.[1];
-      const title = document.title.replace(/\s*-\s*YouTube$/, "").replace(/\s*#shorts$/i, "");
-      if (id) triggerDownload(btn, id, title);
+  // ---- Shorts player: button in the vertical action bar of every reel ----
+  function shortsTitle() {
+    const el =
+      document.querySelector("ytd-reel-video-renderer[is-active] yt-shorts-video-title-view-model") ||
+      document.querySelector("ytd-shorts yt-shorts-video-title-view-model");
+    const t = el?.textContent?.trim();
+    return t || document.title.replace(/\s*-\s*YouTube$/, "").replace(/\s*#shorts$/i, "");
+  }
+
+  function ensureShortsButtons() {
+    if (!location.pathname.startsWith("/shorts/")) return;
+    document.querySelectorAll("ytd-shorts reel-action-bar-view-model").forEach((bar) => {
+      if (bar.querySelector(":scope > .ytthumb-shorts-action")) return;
+      const wrap = document.createElement("div");
+      wrap.className = "ytthumb-shorts-action";
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = `${WATCH_BTN} ytthumb-shorts-btn`;
+      btn.title = "Download thumbnail";
+      btn.setAttribute("aria-label", "Download thumbnail");
+      btn.innerHTML = `<span class="ytthumb-icon">${ICON}</span>`;
+      btn.dataset.state = "idle";
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // The reel in view always owns the URL.
+        const id = location.pathname.match(/^\/shorts\/([\w-]{11})/)?.[1];
+        if (id) triggerDownload(btn, id, shortsTitle(), true);
+      });
+      const label = document.createElement("span");
+      label.className = "ytthumb-shorts-label";
+      label.textContent = "Thumbnail";
+      wrap.append(btn, label);
+      bar.prepend(wrap);
     });
-    bar.prepend(btn);
   }
 
   // ---- Scan loop ----
@@ -227,7 +244,7 @@
     document.querySelectorAll(THUMB_SELECTORS).forEach(decorate);
     ensurePreviewButton();
     ensureWatchButton();
-    ensureShortsButton();
+    ensureShortsButtons();
   }
   function schedule() {
     if (scheduled) return;

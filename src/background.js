@@ -1,6 +1,8 @@
 // Service worker: resolves the best available thumbnail for a video and downloads it.
 
 const QUALITIES = ["maxresdefault", "sddefault", "hqdefault", "mqdefault", "default"];
+// Shorts: "oardefault" is the original vertical (e.g. 1080x1920) image; maxres is pillarboxed.
+const SHORTS_QUALITIES = ["oardefault", ...QUALITIES];
 
 // YouTube serves a 120x90 grey placeholder (with 404) when a size doesn't exist.
 async function exists(url) {
@@ -14,8 +16,8 @@ async function exists(url) {
   }
 }
 
-async function bestThumbnail(videoId) {
-  for (const q of QUALITIES) {
+async function bestThumbnail(videoId, isShort) {
+  for (const q of isShort ? SHORTS_QUALITIES : QUALITIES) {
     const url = `https://i.ytimg.com/vi/${videoId}/${q}.jpg`;
     if (await exists(url)) return { url, quality: q };
   }
@@ -32,9 +34,9 @@ function sanitize(name) {
   );
 }
 
-async function download({ videoId, title }) {
+async function download({ videoId, title, isShort }) {
   if (!/^[\w-]{11}$/.test(videoId)) throw new Error("Invalid video id");
-  const { url, quality } = await bestThumbnail(videoId);
+  const { url, quality } = await bestThumbnail(videoId, !!isShort);
   const base = title ? `${sanitize(title)} [${videoId}]` : videoId;
   const downloadId = await chrome.downloads.download({
     url,
