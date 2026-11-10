@@ -1,0 +1,155 @@
+/* ---- Overlay button on every thumbnail ---- */
+.ytthumb-host {
+  position: relative !important;
+}
+
+.ytthumb-btn {
+  all: unset;
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(15, 15, 15, 0.78);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.15s ease-out, transform 0.15s ease-out, background-color 0.15s ease-out;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  box-sizing: border-box;
+}
+
+.ytthumb-btn .ytthumb-icon,
+.ytthumb-watch-btn .ytthumb-icon {
+  display: flex;
+  pointer-events: none;
+}
+
+.ytthumb-host:hover > .ytthumb-btn,
+.ytthumb-btn:focus-visible,
+.ytthumb-btn[data-state="busy"],
+.ytthumb-btn[data-state="done"],
+.ytthumb-btn[data-state="error"] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.ytthumb-btn:hover {
+  background: rgba(0, 0, 0, 0.92);
+}
+
+.ytthumb-btn:active {
+  transform: scale(0.94);
+}
+
+.ytthumb-btn:focus-visible {
+  outline: 2px solid #3ea6ff;
+  outline-offset: 2px;
+}
+
+.ytthumb-btn[data-state="busy"] .ytthumb-icon,
+.ytthumb-watch-btn[data-state="busy"] .ytthumb-icon {
+  animation: ytthumb-pulse 0.8s ease-in-out infinite alternate;
+}
+
+.ytthumb-btn[data-state="done"] {
+  background: rgba(6, 125, 66, 0.92);
+}
+
+.ytthumb-btn[data-state="error"] {
+  background: rgba(204, 0, 0, 0.92);
+}
+
+@keyframes ytthumb-pulse {
+  from { opacity: 1; }
+  to { opacity: 0.35; }
+}
+
+/* Small thumbnails (playlist panel, compact rows) get a smaller button */
+ytd-playlist-panel-video-renderer .ytthumb-btn {
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+}
+ytd-playlist-panel-video-renderer .ytthumb-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* ---- Watch page pill (matches YouTube's action buttons) ---- */
+.ytthumb-watch-btn {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px 0 12px;
+  margin-left: 8px;
+  border-radius: 18px;
+  background: var(--yt-spec-badge-chip-background, rgba(0, 0, 0, 0.05));
+  color: var(--yt-spec-text-primary, #0f0f0f);
+  font-family: "Roboto", "Arial", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 36px;
+  white-space: nowrap;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background-color 0.15s ease-out;
+  flex: none;
+}
+
+.ytthumb-watch-btn:hover {
+  background: var(--yt-spec-button-chip-background-hover, rgba(0, 0, 0, 0.1));
+}
+
+.ytthumb-watch-btn:focus-visible {
+  outline: 2px solid #3ea6ff;
+  outline-offset: 2px;
+}
+
+.ytthumb-watch-btn[data-state="done"] {
+  color: #067d42;
+}
+
+html[dark] .ytthumb-watch-btn[data-state="done"] {
+  color: #2ba640;
+}
+
+.ytthumb-watch-btn[data-state="error"] {
+  color: #cc0000;
+}
+
+/* ---- Shorts action bar: round icon button ---- */
+.ytthumb-shorts-btn {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  margin: 0 0 16px 0;
+  justify-content: center;
+  border-radius: 50%;
+}
+.ytthumb-shorts-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ytthumb-btn,
+  .ytthumb-watch-btn {
+    transition: none;
+  }
+  .ytthumb-btn[data-state="busy"] .ytthumb-icon,
+  .ytthumb-watch-btn[data-state="busy"] .ytthumb-icon {
+    animation: none;
+  }
+}
