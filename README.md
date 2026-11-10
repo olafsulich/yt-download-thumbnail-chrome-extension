@@ -2,6 +2,14 @@
 
 One click to save the best-quality thumbnail of any YouTube video.
 
+| Grid (Home, Subscriptions, channels) | Search |
+| --- | --- |
+| ![Grid](docs/grid.png) | ![Search](docs/search.png) |
+
+| Watch page | Shorts |
+| --- | --- |
+| ![Watch page](docs/watch.png) | ![Shorts](docs/shorts.png) |
+
 ## Where the button appears
 
 | Place | Button |
